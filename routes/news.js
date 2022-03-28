@@ -2,11 +2,14 @@ const express = require('express')
 const router = express.Router()
 const News = require('../models/news')
 const cors = require('cors')
+const jwt = require('jsonwebtoken')
+
 router.use(cors())
 router.use(express.json())
 
 // endpoint -> /news
-router.get('/', async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
+  console.log(req.user)
   let news
 
   try {
@@ -23,7 +26,7 @@ router.get('/', async (req, res) => {
 })
 
 // endpoint -> /news/new
-router.post('/new', async (req, res) => {
+router.post('/new', authenticate, async (req, res) => {
   const news = new News({
     ...req.body,
     createdAt: Date.now()
@@ -43,5 +46,18 @@ router.post('/new', async (req, res) => {
   }
 })
 
+function authenticate (req, res, next) {
+  const authorizationHeader = req.headers['authorization']
+  const token = authorizationHeader && authorizationHeader.split(' ')[1]
+
+  if (token == null || token == undefined) res.sendStatus(401)
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403)
+
+    req.user = user
+    next()
+  })
+}
 
 module.exports = router

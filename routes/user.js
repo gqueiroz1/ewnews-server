@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const User = require('../models/user')
 const cors = require('cors')
+const jwt = require('jsonwebtoken')
+
 router.use(cors())
 router.use(express.json())
 
@@ -33,12 +35,14 @@ router.post('/login', async (req, res) =>  {
       return
     }
 
+    const accessToken = jwt.sign({ ...user }, process.env.ACCESS_TOKEN_SECRET)
+
     return res.send({
       user: {
         email: user.email,
         fullName: user.fullName
       },
-      token: '83746uasjfh3287ryiukwszda109ruoiqfdkl7'
+      token: accessToken
     })
   } catch (e) {
     console.log(e)
