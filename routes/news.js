@@ -6,8 +6,19 @@ router.use(cors())
 router.use(express.json())
 
 // endpoint -> /news
-router.get('/', async (_, res) => {
-  const news = await News.find({})
+router.get('/', async (req, res) => {
+  let news
+
+  try {
+    if (req.query.title) {
+      news = await News.find({ title: { $regex: req.query.title, $options: 'i' } })
+    } else {
+      news = await News.find({})
+    }
+  } catch (e) {
+    console.log(e)
+  }
+
   res.send(news)
 })
 
