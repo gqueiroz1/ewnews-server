@@ -1,18 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const User = require('../models/user')
 
-router.get('/', async (req, res) => {
-  const user = new User({
-    name: 'Jéssica'
-  })
+const userRouter = require('./user')
+const categoriesRouter = require('./categories')
+const newsRouter = require('./news')
 
-  try {
-    const newUser = await user.save()
-    res.send(newUser)
-  } catch (e) {
-    console.log(e)
-  }
-})
+router.use('/user', userRouter)
+router.use('/categories', categoriesRouter)
+router.use('/news', newsRouter)
 
 module.exports = router
